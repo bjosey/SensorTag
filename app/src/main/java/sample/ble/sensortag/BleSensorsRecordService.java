@@ -12,6 +12,7 @@ import sample.ble.sensortag.ble.BleUtils;
 import sample.ble.sensortag.config.AppConfig;
 import sample.ble.sensortag.sensor.TiAccelerometerSensor;
 import sample.ble.sensortag.sensor.TiGyroscopeSensor;
+import sample.ble.sensortag.sensor.TiRangeSensors;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
 import sample.ble.sensortag.sensor.TiTemperatureSensor;
@@ -111,10 +112,20 @@ public class BleSensorsRecordService extends BleService {
 
     @Override
     public void onDataAvailable(String serviceUuid, String characteristicUUid, String text, byte[] data) {
-        Log.d(TAG, "Data='" + text + "'");
+
+
+        final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
+        final TiRangeSensors<float[], Float> sensor2 = (TiRangeSensors<float[], Float>)sensor;
+        float[] data2 = sensor2.getData();
+
+        Log.d(TAG, "Data='" + text + "'" + data2.toString());
+
+
         Bundle bundle = new Bundle();
         bundle.putString("sensor_uuid", serviceUuid);
+        bundle.putString("sensor_name", sensor.getName());
         bundle.putByteArray("data", data);
+        bundle.putFloatArray("data_float", data2);
         bundle.putString("text", text);
         resultReceiver.send(0, bundle);
         //TODO: put your record code here. Please note that it is not main thread.

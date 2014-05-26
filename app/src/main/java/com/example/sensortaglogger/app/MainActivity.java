@@ -3,11 +3,17 @@ package com.example.sensortaglogger.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import sample.ble.sensortag.BleSensorsRecordService;
 import sample.ble.sensortag.sensor.TiAccelerometerSensor;
@@ -52,6 +58,8 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    ArrayList<String> sdBuffer = new ArrayList<>();
+
     class UpdateUI implements Runnable {
         Bundle bundle;
 
@@ -64,6 +72,32 @@ public class MainActivity extends Activity {
             String text = bundle.getString("text");
             if (uuid.equals(TiAccelerometerSensor.UUID_SERVICE)) {
                 txtAccel.setText(text);
+            }
+            float[] data = bundle.getFloatArray("data_float");
+            String jsonString = String.format("{\"time\":\"%d\", \"sensor\":\"%s\", \"x\":\"%f\", \"y\":\"%f\", \"z\":\"%f\"}",
+                    System.currentTimeMillis(), bundle.getString("sensor_name"), data[0], data[1], data[2]);
+
+            //only save to file if there's 100 entries waiting.
+            sdBuffer.add(jsonString);
+            if (sdBuffer.size() > 100) {
+                //create the file & dir
+                File sdCard = Environment.getExternalStorageDirectory();
+                File dir = new File (sdCard.getAbsolutePath() + "/ActivityMon");
+                dir.mkdirs();
+                File file = new File(dir, "log.txt");
+                try {
+                    FileOutputStream f = new FileOutputStream(file, true);
+                    //now write each line to file
+                    for (String line : sdBuffer) {
+                        f.write(line.getBytes());
+                        f.write("\r\n".getBytes());
+                    }
+                    f.close();
+                } catch (IOException ex){
+                    ex.printStackTrace();
+                }
+                //clear the buffer arraylist
+                sdBuffer.clear();
             }
         }
     }
