@@ -4,6 +4,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.example.sensortaglogger.app.MainActivity;
+
 import sample.ble.sensortag.config.AppConfig;
 import sample.ble.sensortag.ble.BleUtils;
 

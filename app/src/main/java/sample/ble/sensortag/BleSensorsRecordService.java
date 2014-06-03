@@ -23,14 +23,11 @@ public class BleSensorsRecordService extends BleService {
     private static final String TAG = BleSensorsRecordService.class.getSimpleName();
 
     private static final String RECORD_DEVICE_NAME = "SensorTag";
+    public static final String NOTIFICATION = "sample.ble.sensortag";
 
     private final TiSensor<?> sensorToRead = TiSensors.getSensor(TiAccelerometerSensor.UUID_SERVICE);
     private final TiSensor<?> sensorToRead2 = TiSensors.getSensor(TiGyroscopeSensor.UUID_SERVICE);
     private BleDevicesScanner scanner;
-
-    ResultReceiver resultReceiver;
-
-    private boolean isDiscovered = false;
 
     @Override
     public void onCreate() {
@@ -41,13 +38,6 @@ public class BleSensorsRecordService extends BleService {
             stopSelf();
             return;
         }
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                enableSensors();
-            }
-        }, 2000);
 
         final int bleStatus = BleUtils.getBleStatus(getBaseContext());
         switch (bleStatus) {
@@ -89,17 +79,14 @@ public class BleSensorsRecordService extends BleService {
         if (scanner == null)
             return super.onStartCommand(intent, flags, startId);
         Log.d(TAG, "Service started");
-        resultReceiver = intent.getParcelableExtra("receiver");
         scanner.start();
-        //return super.onStartCommand(intent, flags, startId);
-        return Service.START_NOT_STICKY;
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Service stopped");
-        isDiscovered = false;
         setServiceListener(null);
         if (scanner != null)
             scanner.stop();
@@ -113,22 +100,15 @@ public class BleSensorsRecordService extends BleService {
     @Override
     public void onDisconnected() {
         Log.d(TAG, "Disconnected");
-        isDiscovered = false;
         scanner.start();
     }
 
     @Override
     public void onServiceDiscovered() {
         Log.d(TAG, "Service discovered");
-        isDiscovered = true;
+        enableSensor(sensorToRead, true);
+        enableSensor(sensorToRead2, true);
 
-    }
-
-    private void enableSensors() {
-        if (isDiscovered) {
-            enableSensor(sensorToRead, true);
-            enableSensor(sensorToRead2, true);
-        }
     }
 
     @Override
@@ -148,7 +128,11 @@ public class BleSensorsRecordService extends BleService {
         bundle.putByteArray("data", data);
         bundle.putFloatArray("data_float", data2);
         bundle.putString("text", text);
-        resultReceiver.send(0, bundle);
+
+        Intent intent = new Intent(NOTIFICATION);
+        intent.putExtra("bundle", bundle);
+        sendBroadcast(intent);
+
         //TODO: put your record code here. Please note that it is not main thread.
     }
 }

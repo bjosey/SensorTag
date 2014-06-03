@@ -1,7 +1,9 @@
 package com.example.sensortaglogger.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -9,6 +11,7 @@ import android.os.ResultReceiver;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.content.BroadcastReceiver;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,20 +25,26 @@ import sample.ble.sensortag.sensor.TiAccelerometerSensor;
 public class MainActivity extends Activity {
 
     private TextView txtAccel;
-    MyResultReceiver resultReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*resultReceiver = new MyResultReceiver(null);
-        Intent intent = new Intent(this, BleSensorsRecordService.class);
-        intent.putExtra("receiver", resultReceiver);
-        this.startService(intent);*/
-
         txtAccel = (TextView)findViewById(R.id.txtAccel);
         txtAccel.setText("No data!!");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(myReceiver, new IntentFilter(BleSensorsRecordService.NOTIFICATION));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(myReceiver);
     }
 
 
@@ -60,7 +69,7 @@ public class MainActivity extends Activity {
 
     ArrayList<String> sdBuffer = new ArrayList<>();
 
-    class UpdateUI implements Runnable {
+    public class UpdateUI implements Runnable {
         Bundle bundle;
 
         public UpdateUI(Bundle bundle) {
@@ -103,18 +112,12 @@ public class MainActivity extends Activity {
     }
 
 
-    class MyResultReceiver extends ResultReceiver {
-        public MyResultReceiver(Handler handler) {
-            super(handler);
-        }
-
+    private BroadcastReceiver myReceiver = new BroadcastReceiver() {
         @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
+        public void onReceive(Context context, Intent intent) {
             //send the data through to the UI thread for processing
-            //method taken from http://www.lalit3686.blogspot.in/2012/06/how-to-update-activity-from-service.html
-            if (resultCode == 0) {
-                runOnUiThread(new UpdateUI(resultData));
-            }
+            Bundle bundle = intent.getBundleExtra("bundle");
+            runOnUiThread(new UpdateUI(bundle));
         }
-    }
+    };
 }
