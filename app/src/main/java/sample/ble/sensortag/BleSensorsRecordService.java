@@ -1,11 +1,13 @@
 package sample.ble.sensortag;
 
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
+import android.os.Handler;
 import android.widget.Toast;
 import sample.ble.sensortag.ble.BleDevicesScanner;
 import sample.ble.sensortag.ble.BleUtils;
@@ -28,6 +30,8 @@ public class BleSensorsRecordService extends BleService {
 
     ResultReceiver resultReceiver;
 
+    private boolean isDiscovered = false;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -37,6 +41,13 @@ public class BleSensorsRecordService extends BleService {
             stopSelf();
             return;
         }
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                enableSensors();
+            }
+        }, 2000);
 
         final int bleStatus = BleUtils.getBleStatus(getBaseContext());
         switch (bleStatus) {
@@ -80,13 +91,15 @@ public class BleSensorsRecordService extends BleService {
         Log.d(TAG, "Service started");
         resultReceiver = intent.getParcelableExtra("receiver");
         scanner.start();
-        return super.onStartCommand(intent, flags, startId);
+        //return super.onStartCommand(intent, flags, startId);
+        return Service.START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Service stopped");
+        isDiscovered = false;
         setServiceListener(null);
         if (scanner != null)
             scanner.stop();
@@ -100,19 +113,27 @@ public class BleSensorsRecordService extends BleService {
     @Override
     public void onDisconnected() {
         Log.d(TAG, "Disconnected");
+        isDiscovered = false;
         scanner.start();
     }
 
     @Override
     public void onServiceDiscovered() {
         Log.d(TAG, "Service discovered");
-        enableSensor(sensorToRead, true);
-        enableSensor(sensorToRead2, true);
+        isDiscovered = true;
+
+    }
+
+    private void enableSensors() {
+        if (isDiscovered) {
+            enableSensor(sensorToRead, true);
+            enableSensor(sensorToRead2, true);
+        }
     }
 
     @Override
     public void onDataAvailable(String serviceUuid, String characteristicUUid, String text, byte[] data) {
-
+        //isDiscovered = false;
 
         final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
         final TiRangeSensors<float[], Float> sensor2 = (TiRangeSensors<float[], Float>)sensor;

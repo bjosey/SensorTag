@@ -29,10 +29,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        resultReceiver = new MyResultReceiver(null);
+        /*resultReceiver = new MyResultReceiver(null);
         Intent intent = new Intent(this, BleSensorsRecordService.class);
         intent.putExtra("receiver", resultReceiver);
-        this.startService(intent);
+        this.startService(intent);*/
 
         txtAccel = (TextView)findViewById(R.id.txtAccel);
         txtAccel.setText("No data!!");

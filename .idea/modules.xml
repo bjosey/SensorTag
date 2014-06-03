@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/SensorTagLogger.iml" filepath="$PROJECT_DIR$/SensorTagLogger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SensorTagLoggerNew.iml" filepath="$PROJECT_DIR$/SensorTagLoggerNew.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

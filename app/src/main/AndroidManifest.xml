@@ -27,10 +27,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name="sample.ble.sensortag.BleService"
+        <!--service android:name="sample.ble.sensortag.BleService"
             android:enabled="true"/>
         <service android:name="sample.ble.sensortag.BleSensorsRecordService"
-            android:enabled="true"/>
+            android:enabled="true"/-->
     </application>
 
 </manifest>
