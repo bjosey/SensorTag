@@ -2,15 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.sensortaglogger.app" >
 
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <!-- Declare this required feature if you want to make the app available to BLE-capable
+    <!--
+    Declare this required feature if you want to make the app available to BLE-capable
     devices only.  If you want to make your app available to devices that don't support BLE,
     you should omit this in the manifest.  Instead, determine BLE capability by using
-    PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE) -->
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+    PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE)
+    -->
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -27,19 +31,24 @@
             </intent-filter>
         </activity>
 
-        <service android:name="sample.ble.sensortag.BleService"
-            android:enabled="true"/>
-        <service android:name="sample.ble.sensortag.BleSensorsRecordService"
+        <service
+            android:name="sample.ble.sensortag.BleService"
+            android:enabled="true" />
+        <service
+            android:name="sample.ble.sensortag.BleSensorsRecordService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
-
-        <receiver android:name="sample.ble.sensortag.BluetoothStateReciever">
+        <receiver android:name="sample.ble.sensortag.BluetoothStateReciever" >
             <intent-filter>
-                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
         </receiver>
 
+        <service
+            android:name="com.example.sensortaglogger.app.AnalyserService"
+            android:enabled="true" >
+        </service>
     </application>
 
 </manifest>

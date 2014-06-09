@@ -128,6 +128,7 @@ public class BleSensorsRecordService extends BleService {
 
 
         Bundle bundle = new Bundle();
+        bundle.putLong("time", System.currentTimeMillis());
         bundle.putString("sensor_uuid", serviceUuid);
         bundle.putString("sensor_name", sensor.getName());
         bundle.putByteArray("data", data);

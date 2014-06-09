@@ -33,6 +33,8 @@ public class MainActivity extends Activity {
 
         txtAccel = (TextView)findViewById(R.id.txtAccel);
         txtAccel.setText("No data!!");
+
+        startService(new Intent(MainActivity.this, AnalyserService.class));
     }
 
     @Override
