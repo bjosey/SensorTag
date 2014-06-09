@@ -14,6 +14,7 @@ import sample.ble.sensortag.ble.BleUtils;
 import sample.ble.sensortag.config.AppConfig;
 import sample.ble.sensortag.sensor.TiAccelerometerSensor;
 import sample.ble.sensortag.sensor.TiGyroscopeSensor;
+import sample.ble.sensortag.sensor.TiPeriodicalSensor;
 import sample.ble.sensortag.sensor.TiRangeSensors;
 import sample.ble.sensortag.sensor.TiSensor;
 import sample.ble.sensortag.sensor.TiSensors;
@@ -106,8 +107,12 @@ public class BleSensorsRecordService extends BleService {
     @Override
     public void onServiceDiscovered() {
         Log.d(TAG, "Service discovered");
+        ((TiPeriodicalSensor)sensorToRead).setPeriod(10);
+        ((TiPeriodicalSensor)sensorToRead2).setPeriod(10);
         enableSensor(sensorToRead, true);
         enableSensor(sensorToRead2, true);
+        ((TiPeriodicalSensor)sensorToRead).setPeriod(10);
+        ((TiPeriodicalSensor)sensorToRead2).setPeriod(10);
 
     }
 
