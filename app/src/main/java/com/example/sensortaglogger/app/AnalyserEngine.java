@@ -1,5 +1,7 @@
 package com.example.sensortaglogger.app;
 
+import android.util.Log;
+
 import com.example.sensortaglogger.app.behaviour.Behaviour;
 import com.example.sensortaglogger.app.behaviour.PeriodicBehaviour;
 
@@ -13,9 +15,12 @@ public class AnalyserEngine {
 
     private ArrayList<SensorReading> gyroReadings;
     private ArrayList<SensorReading> accelReadings;
+    private static final String TAG = AnalyserService.class.getSimpleName();
 
     //minimum readings to classify behaviour.
     private static final int MIN_READINGS = 15;
+    //thresshold for classifying as movement.
+    private static final float MOVEMENT_THRESHOLD = 38.0F;
 
     //Enum of the possible activities
     private static String ACTIVITY_NONE = "None";
@@ -48,17 +53,21 @@ public class AnalyserEngine {
                 numHoriz++;
             }
         }
+        Log.v(TAG, "Num upright: " + Integer.toString(numUpright) + ", Num horiz:" + Integer.toString(numHoriz));
         return numUpright > numHoriz;
     }
 
-
     /**
-     * Determines if there's some periodic components involved. Is indicative
-     * of walking or running.
+     * Uses the gyroscope to determine if movement is occuring.
      */
-    private boolean isPeriodic() {
-        //TODO: Not yet implemented
-        return false;
+    private boolean isMovement() {
+        double sum = 0.0;
+        for (SensorReading sr : gyroReadings) {
+            sum += sr.getMagnitude();
+        }
+        float avg = (float)(sum / (float)gyroReadings.size());
+        Log.v(TAG, "Average gyro is: " + Float.toString(avg));
+        return avg > MOVEMENT_THRESHOLD;
     }
 
     /**
@@ -90,7 +99,7 @@ public class AnalyserEngine {
         //Okay, then we're Standing, Walking or Running
 
 
-        if (!isPeriodic()) { //Nothing periodic. Probably standing.
+        if (!isMovement()) { //No significant movement. Probably standing.
             return new Behaviour(ACTIVITY_STANDING, AnalyserService.ANALYSIS_INTERVAL);
         }
 
