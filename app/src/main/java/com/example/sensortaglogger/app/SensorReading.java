@@ -25,6 +25,7 @@ public class SensorReading implements Comparable {
     }
 
     public int compareTo(Object o) {
+        //comparator to sort by time
         SensorReading s = (SensorReading)o;
         return (int)(this.time - s.time);
     }

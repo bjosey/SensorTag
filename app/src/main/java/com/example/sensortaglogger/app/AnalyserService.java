@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.sensortaglogger.app.behaviour.Behaviour;
+
 import java.util.ArrayList;
 
 import sample.ble.sensortag.BleSensorsRecordService;
@@ -26,8 +28,8 @@ public class AnalyserService extends Service {
     private ArrayList<SensorReading> accelReadings = new ArrayList<>();
     private ArrayList<SensorReading> gyroReadings = new ArrayList<>();
 
-    private static final int ANALYSIS_INTERVAL = 10000; //10 secs
-    private long lastAnalysis = 0;
+    public static final int ANALYSIS_INTERVAL = 10000; //how often an analysis should occur.
+    private long lastAnalysis = 0; //when the last analysis occured
 
 
     @Override
@@ -46,8 +48,9 @@ public class AnalyserService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "Analyser Destroyed");
-        super.onDestroy();
         unregisterReceiver(myReceiver);
+        super.onDestroy();
+
     }
 
     @Override
@@ -81,9 +84,13 @@ public class AnalyserService extends Service {
             }
 
             if (timeSinceAnalysis() > ANALYSIS_INTERVAL) {
-                //TODO call an analysis
+                //call an analysis
                 lastAnalysis = System.currentTimeMillis();
                 Log.d(TAG, "Doing an analysis.");
+                AnalyserEngine ae = new AnalyserEngine(accelReadings, gyroReadings);
+                Behaviour behav = ae.analyse();
+                Log.d(TAG, "Analysis results: " + behav.name);
+
                 accelReadings.clear();
                 gyroReadings.clear();
             }
