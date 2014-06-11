@@ -40,11 +40,14 @@ public class MainActivity extends Activity {
         txtGyro = (TextView)findViewById(R.id.txtGyro);
         txtStatus = (TextView)findViewById(R.id.txtStatus);
         txtStatusLed = (TextView)findViewById(R.id.txtLed);
-        txtAccel.setText("\n\n");
-        txtGyro.setText("\n\n");
+        txtAccel.setText("x=+0.000000\ny=+0.000000\nz=+0.000000");
+        txtGyro.setText("x=+0.000000\ny=+0.000000\nz=+0.000000");
 
         final ListView lv = (ListView) findViewById(R.id.ListView01);
-        constructSummaries();
+
+        DatabaseHelper dh = new DatabaseHelper(this);
+        ArrayList<BehaviourSummary> summaries = dh.getAllSummaries();
+
         lv.setAdapter(new ActivitySummaryAdapter(this, summaries));
 
         getActionBar().setTitle("Activity Monitor");
@@ -53,11 +56,10 @@ public class MainActivity extends Activity {
         startService(new Intent(MainActivity.this, AnalyserService.class));
     }
 
-    private ArrayList<BehaviourSummary> summaries;
+   /* private ArrayList<BehaviourSummary> summaries;
 
     private void constructSummaries() {
         summaries = new ArrayList<BehaviourSummary>();
-        //TODO grab fresh data from SQLite database. For now just give zeroes.
         BehaviourSummary bs1 = new BehaviourSummary("Sitting", 0, 0);
         BehaviourSummary bs2 = new BehaviourSummary("Standing", 0, 0);
         BehaviourSummary bs3 = new BehaviourSummary("Walking", 0, 0);
@@ -66,7 +68,7 @@ public class MainActivity extends Activity {
         summaries.add(bs2);
         summaries.add(bs3);
         summaries.add(bs4);
-    }
+    }*/
 
     @Override
     protected void onResume() {
@@ -173,8 +175,8 @@ public class MainActivity extends Activity {
                     txtStatus.setText(status);
                     txtStatusLed.setTextColor(color);
                     if (!txtStatus.getText().equals("Connected")) {
-                        txtAccel.setText("\n\n");
-                        txtGyro.setText("\n\n");
+                        txtAccel.setText("x=+0.000000\ny=+0.000000\nz=+0.000000");
+                        txtGyro.setText("x=+0.000000\ny=+0.000000\nz=+0.000000");
                     }
                 }
             });

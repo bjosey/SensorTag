@@ -42,6 +42,11 @@ public class ActivitySummaryAdapter extends BaseAdapter {
         return position;
     }
 
+    public void setSummaries(ArrayList<BehaviourSummary> summaries) {
+        this.summaries = summaries;
+        notifyDataSetChanged();
+    }
+
 
 
     public View getView(int position, View convertView, ViewGroup parent) {
