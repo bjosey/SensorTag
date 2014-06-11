@@ -30,6 +30,7 @@ public class MainActivity extends Activity {
     private TextView txtGyro;
     private TextView txtStatus;
     private TextView txtStatusLed;
+    private TextView txtDebug;
     private ListView listview;
     private ActivitySummaryAdapter adapter;
 
@@ -42,6 +43,7 @@ public class MainActivity extends Activity {
         txtGyro = (TextView)findViewById(R.id.txtGyro);
         txtStatus = (TextView)findViewById(R.id.txtStatus);
         txtStatusLed = (TextView)findViewById(R.id.txtLed);
+        txtDebug = (TextView)findViewById(R.id.txtDebug);
         txtAccel.setText("x=+0.000000\ny=+0.000000\nz=+0.000000");
         txtGyro.setText("x=+0.000000\ny=+0.000000\nz=+0.000000");
 
