@@ -41,6 +41,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_NAME + " TEXT PRIMARY KEY," + KEY_LENGTH + " INTEGER,"
                 + KEY_STEPS + " INTEGER" + ")";
         db.execSQL(CREATE_ACTIVITYMON_TABLE);
+
+        // Populate initial data
+        String INSERT_PREFIX = "INSERT INTO " + TABLE_SUMMARY + "(" + KEY_NAME + ", " + KEY_LENGTH
+                + ", " + KEY_STEPS + ") VALUES";
+        db.execSQL(INSERT_PREFIX + "('Sitting', 0, 0)");
+        db.execSQL(INSERT_PREFIX + "('Standing', 0, 0)");
+        db.execSQL(INSERT_PREFIX + "('Walking', 0, 0)");
+        db.execSQL(INSERT_PREFIX + "('Running', 0, 0)");
     }
 
     // Upgrading database
