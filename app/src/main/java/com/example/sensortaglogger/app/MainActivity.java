@@ -132,7 +132,7 @@ public class MainActivity extends Activity {
                 txtGyro.setText(text);
             }
             float[] data = bundle.getFloatArray("data_float");
-            String jsonString = String.format("{\"time\":\"%d\", \"sensor\":\"%s\", \"x\":\"%f\", \"y\":\"%f\", \"z\":\"%f\"}",
+            String jsonString = String.format("{\"time\": %d, \"sensor\": \"%s\", \"x\": %f, \"y\": %f, \"z\": %f}",
                     System.currentTimeMillis(), bundle.getString("sensor_name"), data[0], data[1], data[2]);
 
             //only save to file if there's 100 entries waiting.
