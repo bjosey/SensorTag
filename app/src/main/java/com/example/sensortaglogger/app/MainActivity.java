@@ -4,10 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.ResultReceiver;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -21,11 +21,15 @@ import java.util.ArrayList;
 
 import sample.ble.sensortag.BleSensorsRecordService;
 import sample.ble.sensortag.sensor.TiAccelerometerSensor;
+import sample.ble.sensortag.sensor.TiGyroscopeSensor;
 
 
 public class MainActivity extends Activity {
 
     private TextView txtAccel;
+    private TextView txtGyro;
+    private TextView txtStatus;
+    private TextView txtStatusLed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +37,11 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         txtAccel = (TextView)findViewById(R.id.txtAccel);
-        txtAccel.setText("No data!!");
+        txtGyro = (TextView)findViewById(R.id.txtGyro);
+        txtStatus = (TextView)findViewById(R.id.txtStatus);
+        txtStatusLed = (TextView)findViewById(R.id.txtLed);
+        txtAccel.setText("\n\n");
+        txtGyro.setText("\n\n");
 
         final ListView lv = (ListView) findViewById(R.id.ListView01);
         constructSummaries();
@@ -64,12 +72,17 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         registerReceiver(myReceiver, new IntentFilter(BleSensorsRecordService.NOTIFICATION));
+        registerReceiver(myStatusReceiver, new IntentFilter(BleSensorsRecordService.STATUS_NOTIFICATION));
+        //ask BSRS what the scanning status is
+        Intent intent = new Intent(BleSensorsRecordService.STATUS_REQUEST);
+        sendBroadcast(intent);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(myReceiver);
+        unregisterReceiver(myStatusReceiver);
     }
 
 
@@ -106,6 +119,8 @@ public class MainActivity extends Activity {
             String text = bundle.getString("text");
             if (uuid.equals(TiAccelerometerSensor.UUID_SERVICE)) {
                 txtAccel.setText(text);
+            } else if (uuid.equals(TiGyroscopeSensor.UUID_SERVICE)) {
+                txtGyro.setText(text);
             }
             float[] data = bundle.getFloatArray("data_float");
             String jsonString = String.format("{\"time\":\"%d\", \"sensor\":\"%s\", \"x\":\"%f\", \"y\":\"%f\", \"z\":\"%f\"}",
@@ -143,6 +158,26 @@ public class MainActivity extends Activity {
             //send the data through to the UI thread for processing
             Bundle bundle = intent.getBundleExtra("bundle");
             runOnUiThread(new UpdateUI(bundle));
+        }
+    };
+
+    private BroadcastReceiver myStatusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //send the data through to the UI thread for processing
+            final String status = intent.getStringExtra("status");
+            final int color = intent.getIntExtra("color", 0);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    txtStatus.setText(status);
+                    txtStatusLed.setTextColor(color);
+                    if (!txtStatus.getText().equals("Connected")) {
+                        txtAccel.setText("\n\n");
+                        txtGyro.setText("\n\n");
+                    }
+                }
+            });
         }
     };
 }

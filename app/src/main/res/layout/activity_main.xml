@@ -6,14 +6,70 @@
     tools:context="com.example.sensortaglogger.app.MainActivity">
 
     <TextView
-        android:text="@string/hello_world"
+        android:text="Status"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/txtAccel" />
+        android:orientation="horizontal">
+        <TextView
+            android:text="● "
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtLed" />
+        <TextView
+            android:text="Disconnected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="5dp"
+            android:id="@+id/txtStatus" />
+    </LinearLayout>
+
     <ListView
         android:id="@+id/ListView01"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"/>
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:text="Debug Info"
+        android:textStyle="bold"
+        android:paddingTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:text="x=+0.000000\ny=+0.000000\nz=+0.000000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="40dp"
+            android:typeface="monospace"
+            android:id="@+id/txtAccel" />
+        <TextView
+            android:text="x=+0.000000\ny=+0.000000\nz=+0.000000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:typeface="monospace"
+            android:paddingLeft="40dp"
+            android:id="@+id/txtGyro" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtDebug"
+        android:layout_width="wrap_content"
+        android:text="Test"
+        android:paddingTop="25dp"
+        android:layout_height="wrap_content" />
 
 
 </LinearLayout>

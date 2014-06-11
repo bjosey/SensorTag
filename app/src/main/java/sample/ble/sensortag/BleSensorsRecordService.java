@@ -3,7 +3,11 @@ package sample.ble.sensortag;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
@@ -25,6 +29,10 @@ public class BleSensorsRecordService extends BleService {
 
     private static final String RECORD_DEVICE_NAME = "SensorTag";
     public static final String NOTIFICATION = "sample.ble.sensortag";
+    public static final String STATUS_NOTIFICATION = "sample.ble.sensortag.status";
+    public static final String STATUS_REQUEST = "sample.ble.sensortag.statusreq";
+    private String status = "Disconnected";
+    private int statusCol = Color.RED;
 
     private final TiSensor<?> sensorToRead = TiSensors.getSensor(TiAccelerometerSensor.UUID_SERVICE);
     private final TiSensor<?> sensorToRead2 = TiSensors.getSensor(TiGyroscopeSensor.UUID_SERVICE);
@@ -34,6 +42,8 @@ public class BleSensorsRecordService extends BleService {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Created BleSensorsRecordService");
+
+        registerReceiver(myStatusReqReceiver,  new IntentFilter(STATUS_REQUEST));
 
         if (!AppConfig.ENABLE_RECORD_SERVICE) {
             stopSelf();
@@ -67,6 +77,7 @@ public class BleSensorsRecordService extends BleService {
                 Log.d(TAG, "Device discovered: " + device.getName());
                 if (RECORD_DEVICE_NAME.equals(device.getName())) {
                     scanner.stop();
+                    setStatus("Connecting (establishing)...", Color.YELLOW);
                     getBleManager().connect(getBaseContext(), device.getAddress());
                 }
             }
@@ -75,12 +86,15 @@ public class BleSensorsRecordService extends BleService {
         setServiceListener(this);
     }
 
+
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (scanner == null)
             return super.onStartCommand(intent, flags, startId);
         Log.d(TAG, "Service started");
         scanner.start();
+        setStatus("Scanning...", Color.rgb(255, 140, 0));
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -91,6 +105,7 @@ public class BleSensorsRecordService extends BleService {
         setServiceListener(null);
         if (scanner != null)
             scanner.stop();
+        setStatus("Disconnected", Color.RED);
     }
 
     @Override
@@ -102,6 +117,7 @@ public class BleSensorsRecordService extends BleService {
     public void onDisconnected() {
         Log.d(TAG, "Disconnected");
         scanner.start();
+        setStatus("Scanning...", Color.rgb(255, 140, 0));
     }
 
     @Override
@@ -113,18 +129,43 @@ public class BleSensorsRecordService extends BleService {
         enableSensor(sensorToRead2, true);
         ((TiPeriodicalSensor)sensorToRead).setPeriod(10);
         ((TiPeriodicalSensor)sensorToRead2).setPeriod(10);
+        setStatus("Connecting (subscribing)...", Color.YELLOW);
 
+    }
+
+    //if the GUI requests to know what the status is.
+    private BroadcastReceiver myStatusReqReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            sendStatus();
+        }
+    };
+
+
+    private void setStatus(String status, int color) {
+        this.status = status;
+        this.statusCol = color;
+        sendStatus();
+    }
+
+    //Let's the GUI know what the status currently is.
+    private void sendStatus() {
+        Intent intent = new Intent(STATUS_NOTIFICATION);
+        intent.putExtra("status", status);
+        intent.putExtra("color", statusCol);
+        sendBroadcast(intent);
     }
 
     @Override
     public void onDataAvailable(String serviceUuid, String characteristicUUid, String text, byte[] data) {
-        //isDiscovered = false;
 
         final TiSensor<?> sensor = TiSensors.getSensor(serviceUuid);
         final TiRangeSensors<float[], Float> sensor2 = (TiRangeSensors<float[], Float>)sensor;
         float[] data2 = sensor2.getData();
 
         Log.d(TAG, "Data='" + text + "'" + data2.toString());
+
+        setStatus("Connected", Color.GREEN);
 
 
         Bundle bundle = new Bundle();
@@ -138,7 +179,5 @@ public class BleSensorsRecordService extends BleService {
         Intent intent = new Intent(NOTIFICATION);
         intent.putExtra("bundle", bundle);
         sendBroadcast(intent);
-
-        //TODO: put your record code here. Please note that it is not main thread.
     }
 }
