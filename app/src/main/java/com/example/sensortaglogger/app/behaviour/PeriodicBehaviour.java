@@ -11,8 +11,13 @@ public class PeriodicBehaviour extends Behaviour {
      * Used for running or walking. See Behaviour.class for more info.
      * @param numSteps Number of steps taking.
      */
-    public PeriodicBehaviour(String name, long length, int numSteps) {
-        super(name, length);
+    public PeriodicBehaviour(String name, long interval, int numSteps) {
+        super(name, interval);
         this.numSteps = numSteps;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s (%d steps) for %d seconds.", this.name, this.numSteps, this.interval / 1000);
     }
 }

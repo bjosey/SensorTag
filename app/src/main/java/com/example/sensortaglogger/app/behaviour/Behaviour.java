@@ -6,15 +6,20 @@ package com.example.sensortaglogger.app.behaviour;
 public class Behaviour {
 
     public String name;
-    public long length;
+    public long interval;
 
     /**
      *
      * @param name Description of the behaviour. For possible values see AnalyserEngine
-     * @param length The analysis interval. See ANALYSIS_INTERVAL in AnalyserEngine.class
+     * @param interval The analysis interval. See ANALYSIS_INTERVAL in AnalyserEngine.class
      */
-    public Behaviour(String name, long length) {
+    public Behaviour(String name, long interval) {
         this.name = name;
-        this.length = length;
+        this.interval = interval;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s for %d seconds.", this.name, this.interval / 1000);
     }
 }

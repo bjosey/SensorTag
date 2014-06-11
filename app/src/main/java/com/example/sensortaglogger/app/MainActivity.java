@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.content.BroadcastReceiver;
 
@@ -34,7 +35,29 @@ public class MainActivity extends Activity {
         txtAccel = (TextView)findViewById(R.id.txtAccel);
         txtAccel.setText("No data!!");
 
+        final ListView lv = (ListView) findViewById(R.id.ListView01);
+        constructSummaries();
+        lv.setAdapter(new ActivitySummaryAdapter(this, summaries));
+
+        getActionBar().setTitle("Activity Monitor");
+
+
         startService(new Intent(MainActivity.this, AnalyserService.class));
+    }
+
+    private ArrayList<BehaviourSummary> summaries;
+
+    private void constructSummaries() {
+        summaries = new ArrayList<BehaviourSummary>();
+        //TODO grab fresh data from SQLite database. For now just give zeroes.
+        BehaviourSummary bs1 = new BehaviourSummary("Sitting", 0, 0);
+        BehaviourSummary bs2 = new BehaviourSummary("Standing", 0, 0);
+        BehaviourSummary bs3 = new BehaviourSummary("Walking", 0, 0);
+        BehaviourSummary bs4 = new BehaviourSummary("Running", 0, 0);
+        summaries.add(bs1);
+        summaries.add(bs2);
+        summaries.add(bs3);
+        summaries.add(bs4);
     }
 
     @Override
