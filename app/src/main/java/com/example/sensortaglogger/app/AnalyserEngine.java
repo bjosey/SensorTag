@@ -3,7 +3,6 @@ package com.example.sensortaglogger.app;
 import android.util.Log;
 
 import com.example.sensortaglogger.app.behaviour.Behaviour;
-import com.example.sensortaglogger.app.behaviour.PeriodicBehaviour;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,11 +22,11 @@ public class AnalyserEngine {
     private static final float MOVEMENT_THRESHOLD = 38.0F;
 
     //Enum of the possible activities
-    private static String ACTIVITY_NONE = "None";
-    private static String ACTIVITY_SITTING =  "Sitting";
-    private static String ACTIVITY_STANDING =  "Standing";
-    private static String ACTIVITY_WALKING =  "Walking";
-    private static String ACTIVITY_RUNNING =  "Running";
+    private static final String ACTIVITY_NONE = "None";
+    private static final String ACTIVITY_SITTING =  "Sitting";
+    private static final String ACTIVITY_STANDING =  "Standing";
+    private static final String ACTIVITY_WALKING =  "Walking";
+    private static final String ACTIVITY_RUNNING =  "Running";
 
     public AnalyserEngine(ArrayList<SensorReading> accelReadings, ArrayList<SensorReading> gyroReadings) {
         this.gyroReadings = gyroReadings;
@@ -88,24 +87,24 @@ public class AnalyserEngine {
     {
 
         if (accelReadings.size() < MIN_READINGS) { //not sufficient readings.
-            return new Behaviour(ACTIVITY_NONE, AnalyserService.ANALYSIS_INTERVAL);
+            return new Behaviour(ACTIVITY_NONE, AnalyserService.ANALYSIS_INTERVAL, 0);
         }
 
 
         if (!isUpright()) { //They're sitting. No further analysis needed.
-            return new Behaviour(ACTIVITY_SITTING, AnalyserService.ANALYSIS_INTERVAL);
+            return new Behaviour(ACTIVITY_SITTING, AnalyserService.ANALYSIS_INTERVAL, 0);
         }
 
         //Okay, then we're Standing, Walking or Running
 
 
         if (!isMovement()) { //No significant movement. Probably standing.
-            return new Behaviour(ACTIVITY_STANDING, AnalyserService.ANALYSIS_INTERVAL);
+            return new Behaviour(ACTIVITY_STANDING, AnalyserService.ANALYSIS_INTERVAL, 0);
         }
 
         //Okay, Walking or Running
         //TODO: Differentiate between Walking and Running
-        return new PeriodicBehaviour(ACTIVITY_WALKING, AnalyserService.ANALYSIS_INTERVAL,
+        return new Behaviour(ACTIVITY_WALKING, AnalyserService.ANALYSIS_INTERVAL,
                 calcSteps());
 
     }

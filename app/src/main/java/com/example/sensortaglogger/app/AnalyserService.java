@@ -25,6 +25,8 @@ public class AnalyserService extends Service {
     }
     private static final String TAG = AnalyserService.class.getSimpleName();
 
+    public static final String NEW_ANALYSIS = "sample.ble.sensortag.newanalysis";
+
     private ArrayList<SensorReading> accelReadings = new ArrayList<>();
     private ArrayList<SensorReading> gyroReadings = new ArrayList<>();
 
@@ -90,6 +92,24 @@ public class AnalyserService extends Service {
                 AnalyserEngine ae = new AnalyserEngine(accelReadings, gyroReadings);
                 Behaviour behav = ae.analyse();
                 Log.d(TAG, "Analysis results: " + behav.name);
+
+                /* UPDATE DB */
+                DatabaseHelper dh = new DatabaseHelper(AnalyserService.this);
+                ArrayList<BehaviourSummary> summaries = dh.getAllSummaries();
+                //find out which row is ours
+                for (BehaviourSummary bs : summaries) {
+                    if (bs.getName().equals(behav.name)) {
+                        //add new values
+                        BehaviourSummary newBs = new BehaviourSummary(bs.getName(),
+                                bs.length + behav.interval, bs.numSteps + behav.numSteps);
+                        dh.updateSummary(newBs);
+                    }
+                }
+
+                //notify GUI thread.
+                Intent broadcastIntent = new Intent(NEW_ANALYSIS);
+                broadcastIntent.putExtra("description", behav.toString());
+                sendBroadcast(broadcastIntent);
 
                 accelReadings.clear();
                 gyroReadings.clear();

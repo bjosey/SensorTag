@@ -30,6 +30,8 @@ public class MainActivity extends Activity {
     private TextView txtGyro;
     private TextView txtStatus;
     private TextView txtStatusLed;
+    private ListView listview;
+    private ActivitySummaryAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +45,13 @@ public class MainActivity extends Activity {
         txtAccel.setText("x=+0.000000\ny=+0.000000\nz=+0.000000");
         txtGyro.setText("x=+0.000000\ny=+0.000000\nz=+0.000000");
 
-        final ListView lv = (ListView) findViewById(R.id.ListView01);
+        listview = (ListView) findViewById(R.id.ListView01);
 
         DatabaseHelper dh = new DatabaseHelper(this);
         ArrayList<BehaviourSummary> summaries = dh.getAllSummaries();
 
-        lv.setAdapter(new ActivitySummaryAdapter(this, summaries));
+        adapter = new ActivitySummaryAdapter(this, summaries);
+        listview.setAdapter(adapter);
 
         getActionBar().setTitle("Activity Monitor");
 
@@ -75,6 +78,7 @@ public class MainActivity extends Activity {
         super.onResume();
         registerReceiver(myReceiver, new IntentFilter(BleSensorsRecordService.NOTIFICATION));
         registerReceiver(myStatusReceiver, new IntentFilter(BleSensorsRecordService.STATUS_NOTIFICATION));
+        registerReceiver(myAnalysisReceiver, new IntentFilter(AnalyserService.NEW_ANALYSIS));
         //ask BSRS what the scanning status is
         Intent intent = new Intent(BleSensorsRecordService.STATUS_REQUEST);
         sendBroadcast(intent);
@@ -85,6 +89,7 @@ public class MainActivity extends Activity {
         super.onPause();
         unregisterReceiver(myReceiver);
         unregisterReceiver(myStatusReceiver);
+        unregisterReceiver(myAnalysisReceiver);
     }
 
 
@@ -152,6 +157,21 @@ public class MainActivity extends Activity {
             }
         }
     }
+
+    private BroadcastReceiver myAnalysisReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String behav = intent.getStringExtra("description");
+            runOnUiThread( new Runnable() {
+                @Override
+                public void run() {
+                    DatabaseHelper dh = new DatabaseHelper(MainActivity.this);
+                    ArrayList<BehaviourSummary> summaries = dh.getAllSummaries();
+                    adapter.setSummaries(summaries);
+                }
+            });
+        }
+    };
 
 
     private BroadcastReceiver myReceiver = new BroadcastReceiver() {
